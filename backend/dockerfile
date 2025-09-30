@@ -37,4 +37,4 @@ RUN mkdir -p /app/staticfiles /app/media
 EXPOSE 8000
 
 # Run Daphne server
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "backend.asgi:application"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "backend.asgi:application"]
