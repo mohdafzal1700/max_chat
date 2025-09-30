@@ -8,7 +8,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
         <Route path="/register" element={<Signin />} />
         <Route path='/userList' element={<UserListingPage/>}/>
         <Route path='/Chat' element={<ChatContainer/>}/>

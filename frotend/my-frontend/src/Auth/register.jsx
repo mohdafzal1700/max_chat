@@ -104,7 +104,7 @@ const Signup = () => {
                 });
                 
                 // Redirect to login
-                navigate('/login');
+                navigate('/');
             } else {
                 toast.error(response.data.message || "Registration failed. Please try again.");
             }
