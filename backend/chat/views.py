@@ -98,7 +98,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                     secure=False,  # Set to True in production with HTTPS
                     samesite="Lax",
                     path='/',
-                    max_age=3600
+                    max_age=7200  # 2 hours (2 * 60 * 60)
                 )
                 res.set_cookie(
                     key="refresh_token",
@@ -107,7 +107,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                     secure=False,  # Set to True in production with HTTPS
                     samesite="Lax",
                     path='/',
-                    max_age=86400
+                    max_age=604800  # 7 days (7 * 24 * 60 * 60)
                 )
 
                 logger.info(f"Successful login for user: {email}")
@@ -161,23 +161,23 @@ class CustomTokenRefreshView(TokenRefreshView):
                     }, status=status.HTTP_200_OK)
                 
                 response.set_cookie(
-                key="access_token",
-                value=access_token,
-                httponly=True,
-                secure=True,  
-                samesite="Lax",
-                path="/",
-                max_age=15 * 60  # 15 minutes
+                    key="access_token",
+                    value=access_token,
+                    httponly=True,
+                    secure=True,  
+                    samesite="Lax",
+                    path="/",
+                    max_age=7200  # 2 hours (2 * 60 * 60)
                 )
                 
                 response.set_cookie(
-                key="refresh_token",
-                value=new_refresh_token,
-                httponly=True,
-                secure=True, 
-                samesite="Lax",
-                path="/",
-                max_age=7 * 24 * 60 * 60  # 7 days
+                    key="refresh_token",
+                    value=new_refresh_token,
+                    httponly=True,
+                    secure=True, 
+                    samesite="Lax",
+                    path="/",
+                    max_age=604800  # 7 days (7 * 24 * 60 * 60)
                 )
             
                 logger.info("Tokens refreshed and cookies updated")
@@ -196,7 +196,6 @@ class CustomTokenRefreshView(TokenRefreshView):
                     {"success": False, "message": "Token refresh failed"}, 
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-                    
                     
 class Logout(APIView):
     '''User logout section with addition of token blacklisting'''

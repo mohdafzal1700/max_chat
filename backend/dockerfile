@@ -1,0 +1,40 @@
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements file
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+# Install Daphne for ASGI support
+RUN pip install daphne
+
+# Copy project files
+COPY . .
+
+# Create directories for static and media files
+RUN mkdir -p /app/staticfiles /app/media
+
+# Collect static files (optional, can be done at runtime)
+# RUN python manage.py collectstatic --noinput
+
+# Expose port
+EXPOSE 8000
+
+# Run Daphne server
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "backend.asgi:application"]
