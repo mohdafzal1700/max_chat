@@ -17,7 +17,7 @@ class ChatWebService{
             return false;
         }
 
-        const wsUrl=`ws://localhost:8001/ws/chat/?token=${token}`;
+        const wsUrl=`wss://api.maxchat.muhammedafsal.online/ws/chat/?token=${token}`;
         try{
             this.socket=new WebSocket(wsUrl)
             this.setupEventListeners();

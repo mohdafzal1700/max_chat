@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const Base_url = 'http://localhost:8001/chat/';
+// Use production API URL
+const Base_url = 'https://api.maxchat.muhammedafsal.online/chat/';
 
 const chatAxios = axios.create({
     baseURL: Base_url,
@@ -49,7 +50,7 @@ export const refreshChatToken = async () => {
     console.log('🔄 Refreshing token with:', refreshToken);
     
     // Don't use chatAxios for refresh to avoid infinite loop
-    return axios.post("http://localhost:8001/chat/refresh/", {
+    return axios.post("https://api.maxchat.muhammedafsal.online/chat/refresh/", {
         refresh: refreshToken
     });
 };
