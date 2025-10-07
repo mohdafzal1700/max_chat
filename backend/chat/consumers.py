@@ -11,20 +11,30 @@ logger = logging.getLogger(__name__)
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        
         # checking the user is authenticated or not
+        logger.info(f"🔌 WebSocket connect attempt - User type: {type(self.scope['user'])}")
+        logger.info(f"🔌 User object: {self.scope['user']}")
+        
         if isinstance(self.scope['user'], AnonymousUser):
+            logger.error("❌ WebSocket REJECTED - User is AnonymousUser (not authenticated)")
             await self.close()
             return
         
         self.user = self.scope['user']
         self.group_name = f'user_{self.user.id}'
         
+        logger.info(f"✓ User authenticated: {self.user.username} (ID: {self.user.id})")
+        
         try:
             await self.channel_layer.group_add(
                 self.group_name,
                 self.channel_name
             )
+            
             await self.accept()
+            logger.info(f"✓ WebSocket ACCEPTED for user: {self.user.username}")
+            
             await self.update_online_status(True)
             
             # Send connection confirmation
@@ -33,10 +43,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'status': 'connected',
                 'user_id': self.user.id
             }))
+            
         except Exception as e:
-            logger.error(f"Error during WebSocket connect: {e}")
+            logger.error(f"❌ Error during WebSocket connect: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             await self.close()
-
+            
     async def disconnect(self, close_code):
         logger.info(f'User {self.user} is trying to logout')
         if hasattr(self, "group_name"):
