@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from channels.middleware import BaseMiddleware
 from channels.db import database_sync_to_async
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,84 +15,65 @@ User = get_user_model()
 @database_sync_to_async
 def get_user_from_jwt(token):
     try:
-        logger.info(f"🔑 Attempting to decode JWT token: {token[:20]}...")
-        logger.info(f"🔑 Using SECRET_KEY: {settings.SECRET_KEY[:10]}...")
+        print(f'🔑 Attempting to decode JWT token: {token[:20]}...')
         
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-        logger.info(f"✓ JWT decoded successfully, payload: {payload}")
+        # Use SimpleJWT's AccessToken to decode
+        access_token = AccessToken(token)
+        print(f'✓ JWT decoded successfully using SimpleJWT')
         
-        user_id = payload.get('user_id')
+        user_id = access_token.get('user_id')
         if not user_id:
-            logger.error("❌ JWT payload missing user_id")
-            logger.error(f"❌ Full payload: {payload}")
+            print('❌ JWT payload missing user_id')
             return AnonymousUser()
         
-        logger.info(f"✓ Extracted user_id: {user_id}")
+        print(f'✓ Extracted user_id: {user_id}')
         
         try:
             user = User.objects.get(id=user_id)
-            logger.info(f"✓ User found: {user.username} (ID: {user.id})")
+            print(f'✓ User found: {user.username} (ID: {user.id})')
             return user
         except User.DoesNotExist:
-            logger.error(f"❌ User with id {user_id} does not exist in database")
+            print(f'❌ User with id {user_id} does not exist in database')
             return AnonymousUser()
             
-    except jwt.ExpiredSignatureError as e:
-        logger.error(f"❌ JWT token expired: {e}")
+    except TokenError as e:
+        print(f'❌ SimpleJWT TokenError: {e}')
         return AnonymousUser()
-    except jwt.InvalidTokenError as e:
-        logger.error(f"❌ Invalid JWT token: {e}")
-        logger.error(f"❌ Token was: {token[:50]}...")
+    except InvalidToken as e:
+        print(f'❌ Invalid JWT token: {e}')
         return AnonymousUser()
     except Exception as e:
-        logger.error(f"❌ Unexpected error decoding JWT: {type(e).__name__}: {e}")
+        print(f'❌ Unexpected error decoding JWT: {type(e).__name__}: {e}')
         import traceback
-        logger.error(traceback.format_exc())
+        print(traceback.format_exc())
         return AnonymousUser()
 
 
 class JWTAuthMiddleware(BaseMiddleware):
-    """
-    Custom middleware that takes JWT token from query string and authenticates user
-    """
     async def __call__(self, scope, receive, send):
-        logger.info("="*80)
-        logger.info("🌐 NEW WEBSOCKET CONNECTION ATTEMPT")
-        logger.info("="*80)
+        print('='*80)
+        print('🌐 NEW WEBSOCKET CONNECTION ATTEMPT')
+        print('='*80)
         
-        # Log connection details
-        logger.info(f"📋 Scope type: {scope.get('type')}")
-        logger.info(f"📋 Scope path: {scope.get('path')}")
-        logger.info(f"📋 Scope method: {scope.get('method', 'N/A')}")
-        
-        # Get token from query string
         query_string = scope.get('query_string', b'').decode()
-        logger.info(f"📡 Query string: {query_string}")
+        print(f'📡 Query string: {query_string}')
         
         query_params = parse_qs(query_string)
-        logger.info(f"📡 Parsed query params: {query_params}")
-        
         token = query_params.get('token', [None])[0]
         
         if token:
-            logger.info(f"🎫 Token found (length: {len(token)})")
-            logger.info(f"🎫 Token preview: {token[:30]}...{token[-10:]}")
-            
-            # Authenticate user with JWT token
+            print(f'🎫 Token found (length: {len(token)})')
             user = await get_user_from_jwt(token)
             scope['user'] = user
             
             if isinstance(user, AnonymousUser):
-                logger.error("❌ AUTHENTICATION FAILED - User is AnonymousUser")
-                logger.error("❌ Connection will be rejected by ChatConsumer")
+                print('❌ AUTHENTICATION FAILED - User is AnonymousUser')
             else:
-                logger.info(f"✓✓✓ AUTHENTICATION SUCCESSFUL ✓✓✓")
-                logger.info(f"✓ User: {user.username} (ID: {user.id})")
-                logger.info(f"✓ User type: {type(user)}")
+                print(f'✓✓✓ AUTHENTICATION SUCCESSFUL ✓✓✓')
+                print(f'✓ User: {user.username} (ID: {user.id})')
         else:
-            logger.error("❌ NO TOKEN provided in query string")
-            logger.error(f"❌ Available query params: {list(query_params.keys())}")
+            print('❌ NO TOKEN provided in query string')
             scope['user'] = AnonymousUser()
         
-        logger.info("="*80)
+        print('='*80)
         return await super().__call__(scope, receive, send)

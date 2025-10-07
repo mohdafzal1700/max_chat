@@ -195,3 +195,10 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://maxchat.muhammedafsal.online',
+    'https://api.maxchat.muhammedafsal.online',
+    'http://localhost:3000',
+    'http://localhost:5173',
+]
