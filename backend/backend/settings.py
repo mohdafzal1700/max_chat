@@ -160,7 +160,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:8001",  # If you're running frontend on different port
     'http://localhost:5173',
-    
+    "https://maxchat.muhammedafsal.online",
 ]
 
 # For development only - allows all origins (less secure)
@@ -187,7 +187,11 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
+
             "hosts": [(REDIS_HOST, 6379)],
+
+            "hosts": [("redis", 6379)],
+
         },
     },
 }
