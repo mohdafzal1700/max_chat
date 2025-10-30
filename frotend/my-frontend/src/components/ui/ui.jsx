@@ -54,7 +54,7 @@ export const Input = React.forwardRef(({ className = "", type = "text", value, .
 
 Input.displayName = "Input"
 
-// Avatar components (simplified versions)
+// Avatar components
 export const Avatar = ({ children, className = "" }) => {
   return (
     <div className={`relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full ${className}`}>
@@ -63,8 +63,15 @@ export const Avatar = ({ children, className = "" }) => {
   )
 }
 
-export const AvatarImage = ({ src, alt }) => {
-  return <img src={src || "/placeholder.svg"} alt={alt} className="aspect-square h-full w-full" />
+export const AvatarImage = ({ src, alt, onError, className = "" }) => {
+  return (
+    <img 
+      src={src || "/placeholder.svg"} 
+      alt={alt || "Avatar"} 
+      className={`aspect-square h-full w-full object-cover ${className}`}
+      onError={onError}
+    />
+  )
 }
 
 export const AvatarFallback = ({ children, className = "" }) => {
