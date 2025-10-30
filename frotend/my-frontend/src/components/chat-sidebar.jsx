@@ -283,7 +283,7 @@ export function ChatSidebar({ selectedUserId, onUserSelect }) {
               <div className="relative">
                 <Avatar className="h-12 w-12">
                   <AvatarImage 
-  src={user.avatar || "/OIP.webp"}
+  src={user.avatar || "/doremon.png"}
   onError={(e) => {
     e.target.src = "https://via.placeholder.com/150/000000/FFFFFF/?text=" + user.name.charAt(0)
   }}

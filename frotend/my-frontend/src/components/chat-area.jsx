@@ -317,7 +317,7 @@ export function ChatArea({ selectedUserId, selectedUserInfo = null }) {
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
            <AvatarImage 
-              src={selectedUser?.avatar || "/OIP.webp"} 
+              src={selectedUser?.avatar || "/doremon.png"} 
               onError={(e) => {
                 e.target.src = "https://via.placeholder.com/150/000000/FFFFFF/?text=" + (selectedUser?.name?.charAt(0) || "U")
               }}
