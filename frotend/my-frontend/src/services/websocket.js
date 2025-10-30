@@ -213,6 +213,23 @@ class ChatWebService {
         console.log('⌨️ Sending typing indicator:', typingData);
         return this.send(typingData);
     }
+    
+    startTyping(receiverId) {
+        return this.sendTypingIndicator(receiverId, true);
+    }
+
+    stopTyping(receiverId) {
+        return this.sendTypingIndicator(receiverId, false);
+    }
+
+    markMessagesAsRead(messageIds) {
+        if (!Array.isArray(messageIds)) {
+            messageIds = [messageIds];
+        }
+        messageIds.forEach(messageId => {
+            this.sendReadReceipt(messageId);
+        });
+    }
 
     sendReadReceipt(messageId) {
         if (!this.Connected) {

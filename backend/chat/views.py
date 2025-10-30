@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import generics, status, permissions   
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db import DatabaseError
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response  
 from django.contrib.auth.models import User
 from chat.models import ChatRoom,Chat
@@ -253,35 +255,77 @@ class ConversationView(APIView):
 
         serializer = ChatSerializer(messages, many=True)
         
-        
-
         return Response({
             "chatroom_id": room.id,
             "messages": serializer.data
         }, status=200)
         
         
+
 class ConversationListView(APIView):
     permission_classes = [IsAuthenticated]
-    def get(self,request):
-        conversations = ChatRoom.objects.filter(participants=request.user)
-        serializer=ChatRoomSerializer(conversations,context={"request": request},many=True)
-        return Response(serializer.data)
-    
-    
+
+    def get(self, request):
+        try:
+            conversations = ChatRoom.objects.filter(participants=request.user)
+            serializer = ChatRoomSerializer(
+                conversations, context={"request": request}, many=True
+            )
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except DatabaseError as e:
+            return Response(
+                {"success": False, "message": "Database error occurred.", "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        
+        except Exception as e:
+            return Response(
+                {"success": False, "message": "An unexpected error occurred.", "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
 class ListAllUsers(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        users = User.objects.exclude(id=request.user.id)  
-        for user in users:
-            if not hasattr(user, 'status'):
-                UserStatus.objects.get_or_create(user=user)
+        try:
+            users = User.objects.exclude(id=request.user.id)
+
+            # Ensure every user has a UserStatus object
+            for user in users:
+                try:
+                    if not hasattr(user, 'status'):
+                        UserStatus.objects.get_or_create(user=user)
+                except Exception as e:
+                    # Continue processing other users if one fails
+                    continue
+
+            serializer = UserListSerializer(users, many=True)
+            return Response(
+                {
+                    'success': True,
+                    'data': serializer.data,
+                    'count': users.count()
+                },
+                status=status.HTTP_200_OK
+            )
         
-        serializer = UserListSerializer(users, many=True)
-        return Response({
-            'success': True,
-            'data': serializer.data,
-            'count': users.count()
-        })
-    
+        except ObjectDoesNotExist as e:
+            return Response(
+                {"success": False, "message": "User or related object not found.", "error": str(e)},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        except DatabaseError as e:
+            return Response(
+                {"success": False, "message": "Database error occurred.", "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+        
+        except Exception as e:
+            return Response(
+                {"success": False, "message": "An unexpected error occurred.", "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
