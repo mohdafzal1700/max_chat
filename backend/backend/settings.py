@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-)@zka(3_!p)vy7257=edlr#oex0p0^u!0g6%gvs7kda$+32goz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['api.maxchat.muhammedafsal.online', '13.201.136.76', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['api.maxchat.muhammedafsal.online', '52.66.249.13', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -201,4 +201,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://api.maxchat.muhammedafsal.online',
     'http://localhost:3000',
     'http://localhost:5173',
+    "https://maxchat.muhammedafsal.online",
+    "https://api.maxchat.muhammedafsal.online",  
+    "http://api.maxchat.muhammedafsal.online",   
 ]
