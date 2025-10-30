@@ -282,7 +282,12 @@ export function ChatSidebar({ selectedUserId, onUserSelect }) {
             >
               <div className="relative">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={user.avatar || "/placeholder.svg"} />
+                  <AvatarImage 
+  src={user.avatar || "/OIP.webp"}
+  onError={(e) => {
+    e.target.src = "https://via.placeholder.com/150/000000/FFFFFF/?text=" + user.name.charAt(0)
+  }}
+/>
                   <AvatarFallback className="bg-black text-white">
                     {user.isGroup ? "👥" : user.name.charAt(0)}
                   </AvatarFallback>

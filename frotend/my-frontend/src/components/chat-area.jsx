@@ -316,7 +316,12 @@ export function ChatArea({ selectedUserId, selectedUserInfo = null }) {
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={selectedUser?.avatar || "/OIP.webp"} />
+           <AvatarImage 
+              src={selectedUser?.avatar || "/OIP.webp"} 
+              onError={(e) => {
+                e.target.src = "https://via.placeholder.com/150/000000/FFFFFF/?text=" + (selectedUser?.name?.charAt(0) || "U")
+              }}
+            />
             <AvatarFallback className="bg-black text-white">
               {selectedUser?.name?.charAt(0) || "U"}
             </AvatarFallback>
